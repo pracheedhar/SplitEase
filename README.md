@@ -1,6 +1,6 @@
 # SplitEase — Production-Grade Expense Split Calculator
 
-SplitEase is a production-grade expense split calculator designed for roommates, trips, and events. It supports multi-payer expenses, detailed balance tracking, transaction settlement optimization using the min-cash-flow algorithm, analytics dashboards, CSV exports, file attachments, and comprehensive security controls.
+SplitEase is a production-grade expense split calculator designed for roommates, trips, and events. It supports multi-payer expenses, detailed balance tracking, transaction settlement optimization using the min-cash-flow algorithm, theme selection, mobile responsiveness, downloadable summaries, and comprehensive security controls.
 
 ## 🏗️ System Architecture
 
@@ -12,27 +12,28 @@ graph TD
     Service --> Balance[Balance Engine]
     Balance --> Cache[Redis Cache / Exchange Rates]
     Balance --> DB[(MongoDB Database)]
-    Service --> Cloudinary[Cloudinary Object Storage]
+    Gateway --> Audit[Write Audit Logger Middleware]
+    Audit --> DB
 ```
 
 ### Flow Components:
-1. **Client**: Next.js App Router with responsive Tailwind design. Uses axios with interceptors for silent token refresh.
+1. **Client**: Next.js App Router with responsive layouts. Uses Axios interceptors for silent token refresh and custom React theme context.
 2. **API Gateway / Limiter**: Rate limiters (100req/15min global, 10req/15min for authentication endpoints) to prevent brute-force attacks.
-3. **JWT Authentication**: Protects routes using access tokens (15m expiration) and HTTP-only refresh tokens (7d expiration) with reuse detection.
+3. **JWT Authentication**: Protects routes using access tokens (15m expiration, in-memory) and HTTP-only refresh tokens (7d expiration, rotated cookie) with reuse detection.
 4. **Expense Service**: Implements business logic for managing expenses across 4 split types (equal, exact, percentage, shares).
 5. **Balance Engine**: Core math calculation engine that tracks net balances and uses the **Min-Cash-Flow** algorithm to optimize payment suggestions.
 6. **Redis Cache**: Caches third-party exchange rates with a 1-hour TTL to ensure speed and rate-limit compliance.
-7. **Cloudinary**: Object storage for secure storage of receipt files and images.
+7. **Write Audit Logger**: Automatically intercepts backend write operations (POST, PUT, PATCH, DELETE) and records action records inside database logs.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: Next.js 16 (TypeScript, App Router, Tailwind CSS, Recharts, Axios)
-- **Backend**: Node.js + Express (TypeScript, tsx, Winston, Helmet, Zod)
+- **Frontend**: Next.js 16 (TypeScript, App Router, CSS Variables theme engine, Axios)
+- **Backend**: Node.js + Express (TypeScript, tsx, Winston logger, Helmet headers, Zod validator)
 - **Database**: MongoDB + Mongoose (indexes on all query paths)
 - **Cache**: Redis
-- **Auth**: JWT (AccessToken in memory, HTTP-only RefreshToken cookie)
+- **Auth**: JWT (AccessToken in memory, HTTP-only RefreshToken cookie, Google OAuth integration)
 - **Testing**: Jest + Supertest (Unit and integration tests with `mongodb-memory-server`)
 - **Deployment**: Docker, GitHub Actions, Vercel & Render templates
 
@@ -54,7 +55,7 @@ Create a `.env.development` or `.env.production` file inside the `server/` direc
 | `JWT_REFRESH_SECRET` | Secret key for refresh tokens | `your-very-secure-jwt-refresh-secret` |
 | `GOOGLE_CLIENT_ID` | Google OAuth Client ID (optional) | `google-oauth-client-id` |
 | `GOOGLE_CLIENT_SECRET`| Google OAuth Client Secret (optional)| `google-oauth-client-secret` |
-| `CLOUDINARY_URL` | Cloudinary credentials URI | `cloudinary://key:secret@cloudname` |
+| `CLOUDINARY_URL` | Cloudinary credentials URL | `cloudinary://key:secret@cloudname` |
 
 Create a `.env.local` file inside the `client/` directory:
 
@@ -99,8 +100,36 @@ npm run dev
 
 To run the automated Jest unit and integration tests (including code coverage):
 ```bash
-npm run test -w server
+npm run test:server
 ```
+
+---
+
+## 💻 Implemented Enhancements & Features
+
+The following updates and features are fully integrated and verified in the codebase:
+
+### 1. Persistent Theme Engine
+- **ThemeContext**: Created light/dark toggles utilizing `localStorage` to save choices.
+- **SSR Flash Prevention**: Injected a direct inline blocker script into the layout head that loads theme configurations before Next.js page initialization.
+- **`useColors()` Hook**: Implemented dynamic colors matching the active theme for components using inline styles.
+
+### 2. Client Split Validations
+Added row-by-row live inputs inside the expense form modal:
+- **Exact Split**: Sum of individual shares must equal the total expense amount.
+- **Percentage Split**: Shows remaining allocations and validates that the sum equals exactly 100%.
+- **Shares Split**: Provides weight inputs (defaulting to 1) and shows calculated totals dynamically.
+
+### 3. Mobile Adaptation
+- Mobile headers with collapsible side panels.
+- Overlay click shields to close the sidebar.
+- Responsive structures for analytics tables and list items.
+
+### 4. Text Summary Report Downloader
+- Includes a button to download the formatted group summary (`.txt`) containing members, expenses, net balances, and cash-flow-optimized settlement guidelines.
+
+### 5. Write Audit Logging
+- Intercepts mutating requests (POST, PATCH, DELETE) to log actors, actions, entities, timestamps, IP addresses, and user agents in the `AuditLog` collection.
 
 ---
 
