@@ -19,6 +19,9 @@ configurePassport();
 
 const app = express();
 
+// Trust proxy settings for express-rate-limit behind Render's load balancer
+app.set('trust proxy', 1);
+
 // ─── Security Middlewares ─────────────────────────────────────────────────────
 app.use(helmet());
 app.use(

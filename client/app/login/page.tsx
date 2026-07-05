@@ -53,7 +53,7 @@ function LoginContent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.15) 0%, transparent 70%), var(--color-surface-900)' }}>
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.1) 0%, transparent 70%), var(--c-bg)', transition: 'background 0.3s ease' }}>
       {/* Decorative blobs */}
       <div style={{ position: 'fixed', top: '-10rem', left: '-10rem', width: '30rem', height: '30rem', background: 'rgba(99,102,241,0.06)', borderRadius: '50%', filter: 'blur(80px)', pointerEvents: 'none' }} />
       <div style={{ position: 'fixed', bottom: '-10rem', right: '-10rem', width: '30rem', height: '30rem', background: 'rgba(139,92,246,0.06)', borderRadius: '50%', filter: 'blur(80px)', pointerEvents: 'none' }} />
@@ -112,7 +112,7 @@ function LoginContent() {
         </form>
 
         <div className="divider" style={{ textAlign: 'center', position: 'relative' }}>
-          <span style={{ background: 'var(--color-surface-card)', padding: '0 0.75rem', color: '#475569', fontSize: '0.8rem' }}>or continue with</span>
+          <span style={{ background: 'var(--c-card)', padding: '0 0.75rem', color: 'var(--c-text-muted)', fontSize: '0.8rem' }}>or continue with</span>
         </div>
         <button className="btn-ghost" style={{ width: '100%', justifyContent: 'center' }} onClick={handleGoogleLogin}>
           Google

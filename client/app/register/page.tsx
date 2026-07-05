@@ -43,7 +43,7 @@ export default function RegisterPage() {
   const strengthLabels = ['Weak', 'Fair', 'Good', 'Strong'];
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(139,92,246,0.15) 0%, transparent 70%), var(--color-surface-900)' }}>
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(139,92,246,0.1) 0%, transparent 70%), var(--c-bg)', transition: 'background 0.3s ease' }}>
       <div style={{ position: 'fixed', top: '-10rem', right: '-10rem', width: '30rem', height: '30rem', background: 'rgba(99,102,241,0.06)', borderRadius: '50%', filter: 'blur(80px)', pointerEvents: 'none' }} />
 
       <div className="glass-card animate-fade-in" style={{ width: '100%', maxWidth: '440px', padding: '2.5rem' }}>
