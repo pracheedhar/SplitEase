@@ -11,6 +11,11 @@ import apiRouter from './routes/index.js';
 import { auditLogMiddleware } from './middlewares/auditLog.js';
 import mongoose from 'mongoose';
 import { setupSwagger } from './utils/swagger.js';
+import passport from 'passport';
+import { configurePassport } from './services/PassportService.js';
+
+configurePassport();
+
 
 const app = express();
 
@@ -51,6 +56,8 @@ app.use('/api/v1/auth/register', authLimiter);
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
+app.use(passport.initialize());
+
 
 // ─── NoSQL Injection Prevention ────────────────────────────────────────────────
 app.use(mongoSanitize());

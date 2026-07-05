@@ -125,4 +125,32 @@ router.post('/logout', authController.logout);
  */
 router.get('/me', protect, authController.getMe);
 
+// ─── Google OAuth routes ──────────────────────────────────────────────────────
+import passport from 'passport';
+
+/**
+ * @openapi
+ * /auth/google:
+ *   get:
+ *     summary: Redirects to Google consent screen for Single Sign-On
+ *     tags: [Auth]
+ */
+router.get(
+  '/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+/**
+ * @openapi
+ * /auth/google/callback:
+ *   get:
+ *     summary: Google OAuth redirect callback handler
+ *     tags: [Auth]
+ */
+router.get(
+  '/google/callback',
+  passport.authenticate('google', { session: false, failureRedirect: '/login?error=oauth_failed' }),
+  authController.googleCallback
+);
+
 export default router;

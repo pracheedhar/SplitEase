@@ -43,8 +43,12 @@ const CATEGORY_ICONS: Record<string, string> = {
 
 export default function GroupPage() {
   const { groupId } = useParams<{ groupId: string }>();
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading, isAuthenticated } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) router.push('/login');
+  }, [isLoading, isAuthenticated, router]);
 
   const [group, setGroup] = useState<any>(null);
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -101,9 +105,10 @@ export default function GroupPage() {
     if (!user) return;
     setFormLoading(true);
     try {
-      const paidByUserId = expenseForm.paidBy || user.id;
+      const userId = user.id || (user as any)._id;
+      const paidByUserId = expenseForm.paidBy || userId;
       const amt = parseFloat(expenseForm.amount);
-      const participantIds = expenseForm.participants.length > 0 ? expenseForm.participants : [user.id];
+      const participantIds = expenseForm.participants.length > 0 ? expenseForm.participants : [userId];
 
       await expenseApi.create(groupId as string, {
         title: expenseForm.title,

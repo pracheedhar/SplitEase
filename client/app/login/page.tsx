@@ -1,16 +1,36 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
-export default function LoginPage() {
-  const { login, isLoading } = useAuth();
+function LoginContent() {
+  const { login, loginWithToken } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const token = searchParams.get('token');
+    const oauthError = searchParams.get('error');
+
+    if (token) {
+      setLoading(true);
+      loginWithToken(token)
+        .then(() => {
+          router.push('/dashboard');
+        })
+        .catch(() => {
+          setError('Google Sign-in failed. Please use email/password.');
+          setLoading(false);
+        });
+    } else if (oauthError) {
+      setError('Google Sign-in was cancelled or failed.');
+    }
+  }, [searchParams, loginWithToken, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,6 +44,12 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleLogin = () => {
+    // Redirect direct to express server SSO route
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api/v1';
+    window.location.href = `${apiUrl}/auth/google`;
   };
 
   return (
@@ -85,14 +111,12 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Google OAuth placeholder */}
-        {/* TODO: Implement Google OAuth sign-in button */}
-        {/* <div className="divider" style={{ textAlign: 'center', position: 'relative' }}>
+        <div className="divider" style={{ textAlign: 'center', position: 'relative' }}>
           <span style={{ background: 'var(--color-surface-card)', padding: '0 0.75rem', color: '#475569', fontSize: '0.8rem' }}>or continue with</span>
         </div>
-        <button className="btn-ghost" style={{ width: '100%', justifyContent: 'center' }}>
+        <button className="btn-ghost" style={{ width: '100%', justifyContent: 'center' }} onClick={handleGoogleLogin}>
           Google
-        </button> */}
+        </button>
 
         <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#64748b', fontSize: '0.875rem' }}>
           Don&apos;t have an account?{' '}
@@ -102,5 +126,17 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-surface-900)' }}>
+        <div className="spinner" style={{ width: '2rem', height: '2rem' }} />
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }

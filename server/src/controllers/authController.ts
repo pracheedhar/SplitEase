@@ -175,10 +175,32 @@ export const getMe = async (
   }
 };
 
-// ─── Google OAuth placeholder ─────────────────────────────────────────────────
-// TODO: Implement Google OAuth 2.0 using passport + passport-google-oauth20
-// Steps:
-//   1. Install: npm i passport passport-google-oauth20 @types/passport @types/passport-google-oauth20 -w server
-//   2. Create src/services/PassportService.ts with GoogleStrategy
-//   3. On googleCallback: find-or-create user by googleId, issue JWT pair, redirect to frontend
-// export const googleCallback = async (req, res, next) => { ... };
+export const googleCallback = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const user = req.user as any;
+    if (!user) {
+      res.redirect(`${process.env.CLIENT_URL || 'http://localhost:3000'}/login?error=oauth_failed`);
+      return;
+    }
+
+    const payload = { id: user._id.toString(), email: user.email };
+    const accessToken = tokenService.generateAccessToken(payload);
+    const refreshToken = tokenService.generateRefreshToken(payload);
+
+    // Save refresh token to user in DB
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    // Set cookie
+    res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
+
+    // Redirect to frontend login handler with access token
+    res.redirect(`${process.env.CLIENT_URL || 'http://localhost:3000'}/login?token=${accessToken}`);
+  } catch (err) {
+    next(err);
+  }
+};
