@@ -47,8 +47,8 @@ function LoginContent() {
   };
 
   const handleGoogleLogin = () => {
-    // Redirect direct to express server SSO route
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api/v1';
+    // Use configured env var, fall back to production URL (never localhost)
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://splitease-backend-j63g.onrender.com/api/v1';
     window.location.href = `${apiUrl}/auth/google`;
   };
 

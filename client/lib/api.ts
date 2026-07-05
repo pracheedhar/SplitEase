@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://splitease-backend-j63g.onrender.com/api/v1';
 
 export const api = axios.create({
   baseURL: API_BASE,
