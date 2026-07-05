@@ -47,6 +47,7 @@ Create a `.env.development` or `.env.production` file inside the `server/` direc
 | `PORT` | Backend listener port | `5001` |
 | `NODE_ENV` | Environment identifier | `development` or `production` |
 | `CLIENT_URL` | Allowed CORS origin | `http://localhost:3000` |
+| `API_URL` | Backend base URL for OAuth redirection callback | `http://localhost:5001` or your Render domain |
 | `MONGO_URI` | MongoDB Connection URL | `mongodb://localhost:27017/expense_split_dev` |
 | `REDIS_URL` | Redis Server connection URI | `redis://localhost:6379` |
 | `JWT_SECRET` | Secret key for access tokens | `your-very-secure-jwt-access-secret` |
