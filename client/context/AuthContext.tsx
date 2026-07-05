@@ -61,8 +61,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   // Silent refresh on app load — uses HTTP-only cookie
+  // Skip if the user explicitly logged out this session
   useEffect(() => {
     const silentRefresh = async () => {
+      const didLogOut = sessionStorage.getItem('splitease-logged-out');
+      if (didLogOut === '1') {
+        dispatch({ type: 'LOGOUT' });
+        return;
+      }
       try {
         const { data } = await authApi.refresh();
         setAccessToken(data.data.accessToken);
@@ -76,6 +82,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
+    sessionStorage.removeItem('splitease-logged-out');
     const { data } = await authApi.login({ email, password });
     setAccessToken(data.data.accessToken);
     dispatch({ type: 'SET_USER', payload: data.data.user });
@@ -91,6 +98,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   const loginWithToken = useCallback(async (token: string) => {
+    // Clear any logged-out flag when user actively signs in (including OAuth)
+    sessionStorage.removeItem('splitease-logged-out');
     setAccessToken(token);
     const { data } = await authApi.me();
     dispatch({ type: 'SET_USER', payload: data.data.user });
@@ -101,6 +110,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await authApi.logout();
     } finally {
       setAccessToken(null);
+      // Mark that this session explicitly logged out — prevents silent re-auth on page load
+      sessionStorage.setItem('splitease-logged-out', '1');
       dispatch({ type: 'LOGOUT' });
     }
   }, []);

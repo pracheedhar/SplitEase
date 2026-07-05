@@ -56,6 +56,14 @@ Create a `.env.development` or `.env.production` file inside the `server/` direc
 | `GOOGLE_CLIENT_SECRET`| Google OAuth Client Secret (optional)| `google-oauth-client-secret` |
 | `CLOUDINARY_URL` | Cloudinary credentials URI | `cloudinary://key:secret@cloudname` |
 
+Create a `.env.local` file inside the `client/` directory:
+
+| Variable | Description | Example Value |
+|---|---|---|
+| `NEXT_PUBLIC_API_URL` | Full URL of the backend API (including `/api/v1` suffix) | `http://localhost:5001/api/v1` (dev) or `https://your-app.onrender.com/api/v1` (prod) |
+
+> **Note:** `NEXT_PUBLIC_API_URL` is required for the frontend to know where to send API requests. Without it, the client defaults to the production Render URL.
+
 ---
 
 ## 🚀 Local Development Setup

@@ -54,7 +54,7 @@ export default function RegisterPage() {
           <h1 className="gradient-text" style={{ fontSize: '1.75rem', fontWeight: 800, margin: 0 }}>
             Create Account
           </h1>
-          <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+          <p style={{ color: 'var(--c-text-muted)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
             Start splitting expenses with friends
           </p>
         </div>
@@ -104,7 +104,7 @@ export default function RegisterPage() {
           </button>
         </form>
 
-        <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#64748b', fontSize: '0.875rem' }}>
+        <p style={{ textAlign: 'center', marginTop: '1.5rem', color: 'var(--c-text-muted)', fontSize: '0.875rem' }}>
           Already have an account?{' '}
           <Link href="/login" style={{ color: '#818cf8', fontWeight: 600, textDecoration: 'none' }}>
             Sign in →

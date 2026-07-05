@@ -47,6 +47,7 @@ export default function GroupPage() {
   const [dashboard, setDashboard] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<Tab>('expenses');
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -66,6 +67,7 @@ export default function GroupPage() {
   const fetchData = useCallback(async () => {
     if (!groupId) return;
     setLoading(true);
+    setFetchError(false);
     try {
       const [groupRes, expRes, balRes, dashRes] = await Promise.all([
         groupApi.getOne(groupId as string),
@@ -78,14 +80,22 @@ export default function GroupPage() {
       setBalances(balRes.data.data.balances || []);
       setSuggestedSettlements(balRes.data.data.suggestedSettlements || []);
       setDashboard(dashRes.data.data);
-    } catch {
-      router.push('/dashboard');
+    } catch (err: any) {
+      // 403/404 = not a member or group doesn't exist -> go to dashboard
+      if (err.response?.status === 403 || err.response?.status === 404) {
+        router.push('/dashboard');
+      } else {
+        setFetchError(true);
+      }
     } finally {
       setLoading(false);
     }
   }, [groupId, router]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  // Only fetch after auth is resolved
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) fetchData();
+  }, [fetchData, isLoading, isAuthenticated]);
 
   // Reset split values when participants or split type changes
   useEffect(() => {
@@ -336,6 +346,25 @@ export default function GroupPage() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
+
+  if (isLoading) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: c.bg }}>
+        <div className="spinner" style={{ width: '2rem', height: '2rem' }} />
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', background: c.bg }}>
+        <div style={{ fontSize: '2.5rem' }}>⚠️</div>
+        <p style={{ color: c.text, fontWeight: 600 }}>Failed to load group data</p>
+        <button className="btn-primary" onClick={fetchData}>Retry</button>
+        <button className="btn-ghost" onClick={() => router.push('/dashboard')}>Back to Dashboard</button>
+      </div>
+    );
+  }
 
   if (loading || !group) {
     return (

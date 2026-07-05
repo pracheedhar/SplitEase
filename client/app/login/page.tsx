@@ -21,7 +21,8 @@ function LoginContent() {
       setLoading(true);
       loginWithToken(token)
         .then(() => {
-          router.push('/dashboard');
+          // Replace URL to clean query parameters before navigating to dashboard
+          router.replace('/dashboard');
         })
         .catch(() => {
           setError('Google Sign-in failed. Please use email/password.');
@@ -67,7 +68,7 @@ function LoginContent() {
           <h1 className="gradient-text" style={{ fontSize: '1.75rem', fontWeight: 800, margin: 0 }}>
             SplitEase
           </h1>
-          <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+          <p style={{ color: 'var(--c-text-muted)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
             Welcome back — sign in to your account
           </p>
         </div>
@@ -111,14 +112,15 @@ function LoginContent() {
           </button>
         </form>
 
-        <div className="divider" style={{ textAlign: 'center', position: 'relative' }}>
-          <span style={{ background: 'var(--c-card)', padding: '0 0.75rem', color: 'var(--c-text-muted)', fontSize: '0.8rem' }}>or continue with</span>
+        <div style={{ position: 'relative', textAlign: 'center', margin: '1.5rem 0' }}>
+          <div style={{ height: '1px', background: 'var(--c-card-border)', position: 'absolute', left: 0, right: 0, top: '50%' }} />
+          <span style={{ position: 'relative', display: 'inline-block', padding: '0 0.75rem', background: 'var(--c-card)', color: 'var(--c-text-muted)', fontSize: '0.8rem', fontWeight: 500 }}>or continue with</span>
         </div>
         <button className="btn-ghost" style={{ width: '100%', justifyContent: 'center' }} onClick={handleGoogleLogin}>
           Google
         </button>
 
-        <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#64748b', fontSize: '0.875rem' }}>
+        <p style={{ textAlign: 'center', marginTop: '1.5rem', color: 'var(--c-text-muted)', fontSize: '0.875rem' }}>
           Don&apos;t have an account?{' '}
           <Link href="/register" style={{ color: '#818cf8', fontWeight: 600, textDecoration: 'none' }}>
             Create one →
@@ -132,7 +134,7 @@ function LoginContent() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-surface-900)' }}>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--c-bg)' }}>
         <div className="spinner" style={{ width: '2rem', height: '2rem' }} />
       </div>
     }>
