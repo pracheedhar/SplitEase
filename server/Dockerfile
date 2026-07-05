@@ -1,18 +1,19 @@
 # ─── Stage 1: Build ───────────────────────────────────────────────────────────
+# Self-contained build context (assumes Docker is run from the server/ directory)
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy root workspace files (needed for npm workspaces)
-COPY package*.json ./
-COPY server/package*.json ./server/
+# Copy only server package files
+COPY package.json ./
 
-RUN npm ci --workspace=server --ignore-scripts
+# Install development + production dependencies to compile TypeScript
+RUN npm install --ignore-scripts
 
-COPY server/tsconfig.json ./server/
-COPY server/src ./server/src
+COPY tsconfig.json ./
+COPY src ./src
 
-RUN npm run build -w server
+RUN npm run build
 
 # ─── Stage 2: Production ──────────────────────────────────────────────────────
 FROM node:20-alpine AS production
@@ -22,11 +23,10 @@ RUN addgroup -S splitease && adduser -S splitease -G splitease
 
 WORKDIR /app
 
-# Copy built artifacts and package files from builder
-COPY --from=builder /app/server/package.json ./package.json
-COPY --from=builder /app/server/dist ./dist
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/dist ./dist
 
-# Install only production deps (no lock file in isolated stage — use npm install)
+# Install only production dependencies
 RUN npm install --omit=dev --ignore-scripts && npm cache clean --force
 
 # Environment
